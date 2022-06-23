@@ -36,10 +36,12 @@ function trackingSheet() {
   const shippingSheet = SpreadsheetApp.openById(ssId_shipping).getSheets()[1];
 
   try {
+    Utilities.sleep(4500);
+    Logger.log("Start");
     //Obtaining the value for the date from Ship&Inventory Spreadsheet
     const date = shippingSheet.getRange("A1").getValues()[0];
     //Calculating the first open row in the date column
-    var count = 0
+    var count = 1
     var dateExists = false;
     const dateVals = trackingSheet.getRange("A4:A").getValues();
     for (row in dateVals) {
@@ -47,13 +49,12 @@ function trackingSheet() {
       var format_str = str.replace(/[^\d.]/g, "");
       var format_date = date.toString().replace(/[^\d.]/g, "");
       if (format_str === format_date) {
-        count = parseInt(row) ;
+        count = parseInt(row) + 1;
         dateExists = true;
         break;
       }
     }
     Logger.log(count);
-    
 
     //Setting the date and formatting the cell
     if (!dateExists) {
@@ -75,10 +76,10 @@ function trackingSheet() {
       trackingSheet.getRange(5, 3, 1,61).setFontSize(12);
       trackingSheet.getRange(5, 3, 1,61).setFontColor("black");
 
-      trackingSheet.getRange(masterDateRange + count).setValue(date);
-      trackingSheet.getRange(count, 1, 2, 1).mergeVertically();
-      trackingSheet.getRange(count, 1).setBorder(true, null, null, null,null, null);
-      trackingSheet.getRange(count, 1).setVerticalAlignment("middle");
+      trackingSheet.getRange(4, 1).setValue(date);
+      trackingSheet.getRange(4, 1, 2, 1).mergeVertically();
+      trackingSheet.getRange(4, 1).setBorder(true, null, null, null,null, null);
+      trackingSheet.getRange(4, 1).setVerticalAlignment("middle");
     }
     
     
@@ -90,75 +91,52 @@ function trackingSheet() {
       }
       for (var col = 0; col < 3; col++) {
         //Getting the values from the shipping spreadsheet for the changes
-        var value = shippingSheet.getRange(3 + row, 31 + col).getValues()[0];
+        const changeVal = shippingSheet.getRange(3 + row, 31 + col).getValues()[0];
+        const totalVal = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
         //Logger.log(value);
         if (row < 14) {
-          if (dateExists) {
-            trackingSheet.getRange(4 + count, 3*row + col + 3).setValue(value)
-          } else {
-            trackingSheet.getRange(4, 3*row + col + 3).setValue(value)
-          }
+          trackingSheet.getRange(3 + count, 3*row + col + 3).setValue(changeVal);
+          trackingSheet.getRange(count + 4, 3*row + col + 3).setValue(totalVal);
           //Adding to tracking spreadsheet
         } else if (row > 14) {
-          if (dateExists) {
-            trackingSheet.getRange(4 + count, 3*row + col).setValue(value);
-          } else {
-            trackingSheet.getRange(4, 3*row + col).setValue(value);
-          }
-          
+          trackingSheet.getRange(3 + count, 3*row + col).setValue(changeVal); 
+          trackingSheet.getRange(count + 4, 3*row + col).setValue(totalVal);
         }
-
       }
     }
 
     //Adding in data for the soy sheet
     for (var row = 0; row < 4; row++) {
-      var value = shippingSheet.getRange(row + 21, 28).getValues()[0];
+      const changeVal = shippingSheet.getRange(row + 21, 28).getValues()[0];
+      const totalVal = shippingSheet.getRange(row + 21, 29).getValues()[0];
       //Logger.log(value);
-      if (dateExists) {
-        trackingSheet.getRange(count + 4, 53 + row*3).setValue(value);
-      } else {
-        trackingSheet.getRange(4, 53 + row*3).setValue(value);
-      }
+      trackingSheet.getRange(count + 3, 53 + row*3).setValue(changeVal);
+      trackingSheet.getRange(count + 4, 53 + row*3).setValue(totalVal);
     }
-
+/*
     //Daily totals
     for (var row = 0; row < 17; row++) {
       if (row == 14) {
         continue;
       }
       for (var col = 0; col < 3; col++) {
-        var value = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
+        var totalVal = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
         //Logger.log(value);
         if (row < 14) {
-          if (dateExists) {
-            trackingSheet.getRange(count + 5, 3*row + col + 3).setValue(value)
-          } else {
-            trackingSheet.getRange(5, 3*row + col + 3).setValue(value)
-          }
-          
+          trackingSheet.getRange(count + 5, 3*row + col + 3).setValue(value)
         } else if (row > 14) {
-          if (dateExists) {
-            trackingSheet.getRange(count + 5, 3*row + col).setValue(value);
-          } else {
-            trackingSheet.getRange(5, 3*row + col).setValue(value);
-          }
-          
+          trackingSheet.getRange(count + 5, 3*row + col).setValue(value);
         }
-
       }
     }
+
     //Daily total for soy
     for (var row = 0; row < 4; row++) {
       var value = shippingSheet.getRange(row + 21, 29).getValues()[0];
       //Logger.log(value);
-      if (dateExists) {
-        trackingSheet.getRange(count + 5, 53 + row*3).setValue(value);
-      } else {
-        trackingSheet.getRange(5, 53 + row*3).setValue(value);
-      }
+      trackingSheet.getRange(count + 5, 53 + row*3).setValue(value);
     }
-
+*/
     Logger.log("Execution Successful")
 
 

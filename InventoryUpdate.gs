@@ -1,6 +1,6 @@
 /**
  * Updates the values of the inventory to reflect current orders
- * 
+ * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
  */
 
 var noriMap = new Map([["700H", 0], ["700F", 0], ["601H", 0], ["601F", 0], ["602F", 0], ["603H", 0], ["RW", 0], ["301F", 0], ["302H", 0],
@@ -10,7 +10,7 @@ var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
 var sheetMap = new Map([["307", 0]]);
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 
-
+//Creates an onEdit trigger if one doesn't exist
 function createOnEditTrigger() {
   var triggers = ScriptApp.getProjectTriggers();
   var shouldCreateTrigger = true;
@@ -29,6 +29,7 @@ function createOnEditTrigger() {
 
 }
 
+
 function inventoryUpdate() {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[1];
   const rangeData = 'E2:H';
@@ -36,7 +37,6 @@ function inventoryUpdate() {
     // Get the values from the spreadsheet using spreadsheetId and range.
     const values = sheet.getRange(rangeData).getValues();
     
-    //  Print the values from spreadsheet if values are available.
     if (!values) {
       Logger.log('No designator data found.');
       return;

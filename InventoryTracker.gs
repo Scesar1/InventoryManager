@@ -1,64 +1,111 @@
 
 const ssId_shipping = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
-const ssId_master = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
+const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
+/**
+ * A script that automatically tracks the inventory based on the shipment data
+ * inputted into Ship&Inventory spreadsheet each day.
+ * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
+ * Inventory Tracking Spreadsheet: https://docs.google.com/spreadsheets/d/1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4/edit?usp=sharing
+ */
 
-function masterSheet() {
-  var masterDateRange = 'A';
-  const masterNoriRange = 'C:AR'
-  const masterSheetRange = 'P3:P'
-  const masterSnackRange = 'Q3:Q'
-  const masterSoyRange = 'R3:U'
 
-  const noriBalanceRange = 'AE3:AH16'
-  const soyBalanceRange = 'AB21:AB24'
-  const snackBalanceRange = 'AE18:AH18'
-  const sheetBalanceRange = 'AE19:AH19'
+//Creates an onEdit trigger if one doesn't exist
+function createOnEditTriggerTracking() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var shouldCreateTrigger = true;
+  triggers.forEach(function (trigger) {
+    if(trigger.getEventType() === ScriptApp.EventType.ON_EDIT && trigger.getHandlerFunction() === "trackingSheet") {
+      shouldCreateTrigger = false; 
+    }
+  });
+  
+  if(shouldCreateTrigger) {
+    ScriptApp.newTrigger("trackingSheet")
+      .forSpreadsheet(SpreadsheetApp.openById(ssId_shipping))
+      .onEdit()
+      .create()
+  }
 
-  const masterSheet = SpreadsheetApp.openById(ssId_master).getSheets()[0];
+}
+
+function trackingSheet() {
+  //Range declaration for the date
+  const masterDateRange = 'A';
+  //spreadsheet declarations
+  const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
   const shippingSheet = SpreadsheetApp.openById(ssId_shipping).getSheets()[1];
 
   try {
-    const noriBalance = shippingSheet.getRange(noriBalanceRange).getValues();
-    const soyBalance = shippingSheet.getRange(soyBalanceRange).getValues();
-    const snackBalance = shippingSheet.getRange(snackBalanceRange).getValues();
-    const sheetBalance = shippingSheet.getRange(sheetBalanceRange).getValues();
-
-    var masterNoriBalance = shippingSheet.getRange(masterNoriRange).getValues();
-    const masterSoyBalance = shippingSheet.getRange(masterSoyRange).getValues();
-    const masterSnackBalance = shippingSheet.getRange(masterSnackRange).getValues();
-    const masterSheetBalance = shippingSheet.getRange(masterSheetRange).getValues();
-
+    //Obtaining the value for the date from Ship&Inventory Spreadsheet
     const date = shippingSheet.getRange("A1").getValues()[0];
-  
-    var count = 4;
-    while (masterSheet.getRange(masterDateRange + count).getValues()[0] != "") {
-      
-      var str = masterSheet.getRange(masterDateRange + count).getValues()[0].toString();
+    //Calculating the first open row in the date column
+    var count = 0
+    var dateExists = false;
+    const dateVals = trackingSheet.getRange("A4:A").getValues();
+    for (row in dateVals) {
+      var str = dateVals[row][0].toString();
       var format_str = str.replace(/[^\d.]/g, "");
       var format_date = date.toString().replace(/[^\d.]/g, "");
       if (format_str === format_date) {
+        count = parseInt(row) ;
+        dateExists = true;
         break;
       }
-      count+= 2;
     }
-    //Setting the date
-    masterSheet.getRange(masterDateRange + count).setValue(date);
-    masterSheet.getRange(count, 1, 2, 1).mergeVertically();
-    masterSheet.getRange(count, 1).setBorder(true, null, null, null,null, null);
-    masterSheet.getRange(count, 1).setVerticalAlignment("middle");
+    Logger.log(count);
     
-    //Adding in the data for nori, 7sheet, and snack
+
+    //Setting the date and formatting the cell
+    if (!dateExists) {
+      trackingSheet.insertRowAfter(3);
+      trackingSheet.getRange(4, 2).setValue("Change")
+      trackingSheet.insertRowAfter(4);
+      trackingSheet.getRange(5, 2).setValue("Daily Total")
+      
+      //Change row color
+      trackingSheet.getRange(4, 3, 1, 61).setBackground("#b6d7a8");
+      trackingSheet.getRange(4, 3, 1, 61).setFontSize(12);
+      trackingSheet.getRange(4, 3, 1, 61).setFontColor("#e06666");
+      //Date Cell Color
+      trackingSheet.getRange(4, 1).setBackground("white");
+      //Change and Daily Total Cell Color
+      trackingSheet.getRange(4, 2, 2, 1).setBackground("white");
+      //Daily Total row color
+      trackingSheet.getRange(5, 3, 1,61).setBackground("green");
+      trackingSheet.getRange(5, 3, 1,61).setFontSize(12);
+      trackingSheet.getRange(5, 3, 1,61).setFontColor("black");
+
+      trackingSheet.getRange(masterDateRange + count).setValue(date);
+      trackingSheet.getRange(count, 1, 2, 1).mergeVertically();
+      trackingSheet.getRange(count, 1).setBorder(true, null, null, null,null, null);
+      trackingSheet.getRange(count, 1).setVerticalAlignment("middle");
+    }
+    
+    
+   
+    //Data transfer between the spreadsheets for Dried Seaweed, Nori, 7Sheet, and Snack
     for (var row = 0; row < 17; row++) {
-      if (row == 14) {
+      if (row == 14) { //Skipping row 14 because in the shipping spreadsheet it is just the totals
         continue;
       }
       for (var col = 0; col < 3; col++) {
+        //Getting the values from the shipping spreadsheet for the changes
         var value = shippingSheet.getRange(3 + row, 31 + col).getValues()[0];
         //Logger.log(value);
         if (row < 14) {
-          masterSheet.getRange(count, 3*row + col + 3).setValue(value)
+          if (dateExists) {
+            trackingSheet.getRange(4 + count, 3*row + col + 3).setValue(value)
+          } else {
+            trackingSheet.getRange(4, 3*row + col + 3).setValue(value)
+          }
+          //Adding to tracking spreadsheet
         } else if (row > 14) {
-          masterSheet.getRange(count, 3*row + col).setValue(value);
+          if (dateExists) {
+            trackingSheet.getRange(4 + count, 3*row + col).setValue(value);
+          } else {
+            trackingSheet.getRange(4, 3*row + col).setValue(value);
+          }
+          
         }
 
       }
@@ -67,8 +114,12 @@ function masterSheet() {
     //Adding in data for the soy sheet
     for (var row = 0; row < 4; row++) {
       var value = shippingSheet.getRange(row + 21, 28).getValues()[0];
-      Logger.log(value);
-      masterSheet.getRange(count, 53 + row*3).setValue(value);
+      //Logger.log(value);
+      if (dateExists) {
+        trackingSheet.getRange(count + 4, 53 + row*3).setValue(value);
+      } else {
+        trackingSheet.getRange(4, 53 + row*3).setValue(value);
+      }
     }
 
     //Daily totals
@@ -80,32 +131,39 @@ function masterSheet() {
         var value = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
         //Logger.log(value);
         if (row < 14) {
-          masterSheet.getRange(count + 1, 3*row + col + 3).setValue(value)
+          if (dateExists) {
+            trackingSheet.getRange(count + 5, 3*row + col + 3).setValue(value)
+          } else {
+            trackingSheet.getRange(5, 3*row + col + 3).setValue(value)
+          }
+          
         } else if (row > 14) {
-          masterSheet.getRange(count + 1, 3*row + col).setValue(value);
+          if (dateExists) {
+            trackingSheet.getRange(count + 5, 3*row + col).setValue(value);
+          } else {
+            trackingSheet.getRange(5, 3*row + col).setValue(value);
+          }
+          
         }
 
       }
     }
-
-    //Adding in data for the soy sheet
-    for (var row = 0; row < 4; row++) {
-      var value = shippingSheet.getRange(row + 21, 28).getValues()[0];
-      Logger.log(value);
-      masterSheet.getRange(count, 53 + row*3).setValue(value);
-    }
-
+    //Daily total for soy
     for (var row = 0; row < 4; row++) {
       var value = shippingSheet.getRange(row + 21, 29).getValues()[0];
-      Logger.log(value);
-      masterSheet.getRange(count + 1, 53 + row*3).setValue(value);
+      //Logger.log(value);
+      if (dateExists) {
+        trackingSheet.getRange(count + 5, 53 + row*3).setValue(value);
+      } else {
+        trackingSheet.getRange(5, 53 + row*3).setValue(value);
+      }
     }
 
-
+    Logger.log("Execution Successful")
 
 
   } catch (err) {
-    Logger.log(err.message);
+    //Logger.log(err.message);
   }
 
 }

@@ -64,17 +64,17 @@ function trackingSheet() {
       trackingSheet.getRange(5, 2).setValue("Daily Total")
       
       //Change row color
-      trackingSheet.getRange(4, 3, 1, 61).setBackground("#b6d7a8");
-      trackingSheet.getRange(4, 3, 1, 61).setFontSize(12);
-      trackingSheet.getRange(4, 3, 1, 61).setFontColor("#e06666");
+      trackingSheet.getRange(4, 3, 1, 60).setBackground("#b6d7a8");
+      trackingSheet.getRange(4, 3, 1, 60).setFontSize(12);
+      trackingSheet.getRange(4, 3, 1, 60).setFontColor("#ffe599");
       //Date Cell Color
       trackingSheet.getRange(4, 1).setBackground("white");
       //Change and Daily Total Cell Color
       trackingSheet.getRange(4, 2, 2, 1).setBackground("white");
       //Daily Total row color
-      trackingSheet.getRange(5, 3, 1,61).setBackground("green");
-      trackingSheet.getRange(5, 3, 1,61).setFontSize(12);
-      trackingSheet.getRange(5, 3, 1,61).setFontColor("black");
+      trackingSheet.getRange(5, 3, 1,60).setBackground("green");
+      trackingSheet.getRange(5, 3, 1,60).setFontSize(12);
+      trackingSheet.getRange(5, 3, 1,60).setFontColor("black");
 
       trackingSheet.getRange(4, 1).setValue(date);
       trackingSheet.getRange(4, 1, 2, 1).mergeVertically();
@@ -113,30 +113,7 @@ function trackingSheet() {
       trackingSheet.getRange(count + 3, 53 + row*3).setValue(changeVal);
       trackingSheet.getRange(count + 4, 53 + row*3).setValue(totalVal);
     }
-/*
-    //Daily totals
-    for (var row = 0; row < 17; row++) {
-      if (row == 14) {
-        continue;
-      }
-      for (var col = 0; col < 3; col++) {
-        var totalVal = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
-        //Logger.log(value);
-        if (row < 14) {
-          trackingSheet.getRange(count + 5, 3*row + col + 3).setValue(value)
-        } else if (row > 14) {
-          trackingSheet.getRange(count + 5, 3*row + col).setValue(value);
-        }
-      }
-    }
 
-    //Daily total for soy
-    for (var row = 0; row < 4; row++) {
-      var value = shippingSheet.getRange(row + 21, 29).getValues()[0];
-      //Logger.log(value);
-      trackingSheet.getRange(count + 5, 53 + row*3).setValue(value);
-    }
-*/
     Logger.log("Execution Successful")
 
 

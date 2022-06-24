@@ -12,6 +12,9 @@ const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
 function trackingSheet() {
   //spreadsheet declarations
   const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
+  if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() != "FORM") {
+    return;
+  }
   const shippingSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
   try {
@@ -98,5 +101,4 @@ function trackingSheet() {
   }
 
 }
-
 

@@ -1,5 +1,5 @@
 # Inventory Manager
-Current Version: 1.3.3 (6/24/2022)
+Current Version: 1.4 (6/24/2022)
 
 
 Inventory management and record storing for Route 66 International.

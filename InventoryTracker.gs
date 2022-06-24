@@ -12,10 +12,10 @@ const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
 function trackingSheet() {
   //spreadsheet declarations
   const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
-  const shippingSheet = SpreadsheetApp.openById(ssId_shipping).getSheets()[1];
+  const shippingSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
   try {
-    Logger.log("Executing Inventory Tracker");
+    Logger.log("Recording current inventory state...");
     //Obtaining the value for the date from Ship&Inventory Spreadsheet
     const date = shippingSheet.getRange("A1").getValues()[0];
     //Calculating the first open row in the date column
@@ -89,7 +89,7 @@ function trackingSheet() {
       trackingSheet.getRange(count + 4, 53 + row*3).setValue(totalVal);
     }
 
-    Logger.log("Execution Successful")
+    Logger.log("Current inventory state successfully recorded")
 
 
   } catch (err) {

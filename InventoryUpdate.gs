@@ -12,7 +12,8 @@ var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
 var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
-const sheetDate = SpreadsheetApp.openById(spreadsheetId).getSheets()[1].getRange("A1").getValues()[0];
+const sheetDate = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange("A1").getValues()[0];
+
 
 //Creates an onEdit trigger if one doesn't exist
 function createOnEditTrigger() {
@@ -35,7 +36,7 @@ function createOnEditTrigger() {
 
 
 function inventoryUpdate() {
-  const sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[1];
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const rangeData = 'E2:H';
   const productDate = sheet.getRange('Q2:Q').getValues();
   Logger.log("Updating inventory...")

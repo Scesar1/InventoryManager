@@ -1,14 +1,18 @@
 /**
- * Updates the values of the inventory to reflect current orders
+ * Reads in shipping data
  * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
  */
 
+
+//Global Variables, maps for each category of product
 var noriMap = new Map([["700H", 0], ["700F", 0], ["601H", 0], ["601F", 0], ["602F", 0], ["603H", 0], ["RW", 0], ["301F", 0], ["302H", 0],
   ["302F", 0], ["201F", 0], ["201H", 0], ["300U", 0]]);
 var soyMap = new Map([["PK", 0], ["GN", 0], ["YW", 0], ["SM", 0]]);
 var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
 var sheetMap = new Map([["307", 0]]);
+//Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
+const sheetDate = SpreadsheetApp.openById(spreadsheetId).getSheets()[1].getRange("A1").getValues()[0];
 
 //Creates an onEdit trigger if one doesn't exist
 function createOnEditTrigger() {
@@ -33,52 +37,76 @@ function createOnEditTrigger() {
 function inventoryUpdate() {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[1];
   const rangeData = 'E2:H';
+  const productDate = sheet.getRange('Q2:Q').getValues();
+  Logger.log("Updating inventory...")
   try {
     // Get the values from the spreadsheet using spreadsheetId and range.
     const values = sheet.getRange(rangeData).getValues();
-    
+    //Checks if the values exist
     if (!values) {
       Logger.log('No designator data found.');
       return;
     }
-    Logger.log('Value:');
+    //Reads in the values from the range E2:H
     for (const row in values) {
       if (values[row][1] == "") {
         break;
       }
       if (values[row][0] != "") {
-        inventoryLogic(values[row][0], values[row][1], values[row][2], values[row][3]);
+        //Runs inventoryLogic method to determine which product quantity gets updated
+        inventoryLogic(values[row][0], values[row][1], values[row][2], values[row][3], productDate[row]);
       }
     }
+    //While loop to determine the the position of the inventory chart, in most cases it will not execute
     var i = 1;
     while (sheet.getRange("AG" + i).getValues()[0] != 'OFFICE') {
       i++
     }
     i += 2;
+    //Inputs the data from the noriMap into the 'changes' column
     for (const [key, value] of noriMap.entries()) {
       sheet.getRange("AG" + i).setValue(value);
       i++;
     }
+    //While loop to determine the the position of the soy paper inventory chart, in most cases it will not execute
     var j = 19;
     while (sheet.getRange("AB" + j).getValues()[0] != 'Changes') {
       j++;
     }
     j++;
+    //Inputs the data from the soyMap into the 'changes' column
     for (const [key, value] of soyMap.entries()) {
       sheet.getRange("AB" + j).setValue(value);
       j++
     }
     sheet.getRange("AG19").setValue(snackMap.get('SN15OR'));
     sheet.getRange("AG18").setValue(sheetMap.get('307'));
+
+    Logger.log("Inventory updated successfully.")
+    trackingSheet();
     
   } catch (err) {
-    // TODO (developer) - Handle Values.get() exception from Sheet API
+    Logger.log("Inventory update failed!")
     Logger.log(err.message);
   }
 
 }
-
-function inventoryLogic(designator, size, quality, quantity) {
+/**
+ * This method determines which product map value gets updated depending on the four main characteristics of each product 
+ * in the spreadsheet. 
+ * 
+ * @param designator  The product designator, found in column E
+ * @param size  The size of the product; typically half or full for nori. Found in column F
+ * @param quality   the grade of the nori, but used in this function to represent the quantity of the soy paper. Found in column G
+ * @param quantity  the amount of product, found in column H
+ */
+function inventoryLogic(designator, size, quality, quantity, date) {
+    var str = sheetDate.toString();
+    var format_str = str.replace(/[^\d.]/g, "");
+    var format_date = date.toString().replace(/[^\d.]/g, "");
+    if (format_str != format_date) {
+      return;
+    }
   switch (size){
     case 'H':
       if (designator === '700') {

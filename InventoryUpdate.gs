@@ -13,10 +13,6 @@ var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 
-   
-
-
-
 //Creates an onEdit trigger if one doesn't exist
 function createOnEditTrigger() {
   var triggers = ScriptApp.getProjectTriggers();
@@ -35,7 +31,6 @@ function createOnEditTrigger() {
   }
 
 }
-
 
 function inventoryUpdate() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -108,13 +103,14 @@ function inventoryUpdate() {
  * @param quantity  the amount of product, found in column H
  */
 function inventoryLogic(designator, size, quality, quantity, date) {
+  /*
   const sheetDate = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange("A1").getValues()[0];
   var str = sheetDate.toString();
   var format_str = str.replace(/[^\d.]/g, "");
   var format_date = date.toString().replace(/[^\d.]/g, "");
   if (format_str != format_date) {
     return;
-  }
+  } */
   switch (size){
     case 'H':
       if (designator === '700') {

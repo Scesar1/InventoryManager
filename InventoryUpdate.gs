@@ -12,9 +12,8 @@ var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
 var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
-if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() != "FORM") {
-    const sheetDate = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange("A1").getValues()[0];
-}
+
+   
 
 
 
@@ -39,8 +38,10 @@ function createOnEditTrigger() {
 
 
 function inventoryUpdate() {
-  if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() != "FORM") {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getName() === "FORM") {
+    Logger.log("FORM sheet");
+    return;
   }
   const rangeData = 'E2:H';
   const productDate = sheet.getRange('Q2:Q').getValues();
@@ -107,12 +108,13 @@ function inventoryUpdate() {
  * @param quantity  the amount of product, found in column H
  */
 function inventoryLogic(designator, size, quality, quantity, date) {
-    var str = sheetDate.toString();
-    var format_str = str.replace(/[^\d.]/g, "");
-    var format_date = date.toString().replace(/[^\d.]/g, "");
-    if (format_str != format_date) {
-      return;
-    }
+  const sheetDate = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange("A1").getValues()[0];
+  var str = sheetDate.toString();
+  var format_str = str.replace(/[^\d.]/g, "");
+  var format_date = date.toString().replace(/[^\d.]/g, "");
+  if (format_str != format_date) {
+    return;
+  }
   switch (size){
     case 'H':
       if (designator === '700') {

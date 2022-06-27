@@ -12,7 +12,8 @@ const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
 function trackingSheet() {
   //spreadsheet declarations
   const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
-  if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() != "FORM") {
+  if (SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getSheetName() == "FORM") {
+    Logger.log("FORM sheet");
     return;
   }
   const shippingSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -21,6 +22,7 @@ function trackingSheet() {
     Logger.log("Recording current inventory state...");
     //Obtaining the value for the date from Ship&Inventory Spreadsheet
     const date = shippingSheet.getRange("A1").getValues()[0];
+    Logger.log(shippingSheet.getName());
     //Calculating the first open row in the date column
     var count = 1
     var dateExists = false;

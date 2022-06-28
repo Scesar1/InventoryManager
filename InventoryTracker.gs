@@ -2,12 +2,32 @@
 const ssId_shipping = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
 /**
+ * 
  * Automatically tracks the inventory based on the inputted shipment data. Data collection is based on the ranges 
  * AE3:AL19 and AB21:AC24 in the Ship&Inventory Spreadsheet. 
  * 
  * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
  * Inventory Tracking Spreadsheet: https://docs.google.com/spreadsheets/d/1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4/edit?usp=sharing
  */
+
+
+function createOnEditTrigger() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var shouldCreateTrigger = true;
+  triggers.forEach(function (trigger) {
+    if(trigger.getEventType() === ScriptApp.EventType.ON_EDIT && trigger.getHandlerFunction() === "trackingSheet") {
+      shouldCreateTrigger = false; 
+    }
+  });
+  
+  if(shouldCreateTrigger) {
+    ScriptApp.newTrigger("trackingSheet")
+      .forSpreadsheet(SpreadsheetApp.openById(spreadsheetId))
+      .onEdit()
+      .create()
+  }
+
+}
 
 function trackingSheet() {
   //spreadsheet declarations

@@ -1,4 +1,6 @@
+
 /**
+ * 
  * Reads in shipping data
  * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
  */
@@ -13,23 +15,13 @@ var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 
-//Creates an onEdit trigger if one doesn't exist
-function createOnEditTrigger() {
-  var triggers = ScriptApp.getProjectTriggers();
-  var shouldCreateTrigger = true;
-  triggers.forEach(function (trigger) {
-    if(trigger.getEventType() === ScriptApp.EventType.ON_EDIT && trigger.getHandlerFunction() === "inventoryUpdate") {
-      shouldCreateTrigger = false; 
-    }
-  });
+function onEdit(e) {
+  var col = e.range.columnStart;
   
-  if(shouldCreateTrigger) {
-    ScriptApp.newTrigger("inventoryUpdate")
-      .forSpreadsheet(SpreadsheetApp.openById(spreadsheetId))
-      .onEdit()
-      .create()
+  if (col >= 4 && col <= 8) {
+    inventoryUpdate();
+    Logger.log("Values updated");
   }
-
 }
 
 function inventoryUpdate() {

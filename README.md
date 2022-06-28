@@ -1,5 +1,8 @@
 # Inventory Manager
-Current Version: 1.4 (6/24/2022)
+Current Version: 1.5.2 (6/28/2022)
+Changelog:
+-Added support for new manual change column in the Ship&Inventory spreadsheet
+-Inventory spreadsheet now will calculate the sum of the two "Office" columns into single "Office" result
 
 
 Inventory management and record storing for Route 66 International.

@@ -11,24 +11,6 @@ const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
  */
 
 
-function createOnEditTrigger() {
-  var triggers = ScriptApp.getProjectTriggers();
-  var shouldCreateTrigger = true;
-  triggers.forEach(function (trigger) {
-    if(trigger.getEventType() === ScriptApp.EventType.ON_EDIT && trigger.getHandlerFunction() === "trackingSheet") {
-      shouldCreateTrigger = false; 
-    }
-  });
-  
-  if(shouldCreateTrigger) {
-    ScriptApp.newTrigger("trackingSheet")
-      .forSpreadsheet(SpreadsheetApp.openById(spreadsheetId))
-      .onEdit()
-      .create()
-  }
-
-}
-
 function trackingSheet() {
   //spreadsheet declarations
   const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
@@ -91,16 +73,27 @@ function trackingSheet() {
       if (row == 14) { //Skipping row 14 because in the shipping spreadsheet it is just the totals
         continue;
       }
-      for (var col = 0; col < 3; col++) {
-        //Getting the values from the shipping spreadsheet for the changes
-        const changeVal = shippingSheet.getRange(3 + row, 31 + col).getValues()[0];
-        const totalVal = shippingSheet.getRange(3 + row, 35 + col).getValues()[0];
+      for (var col = 0; col < 4; col++) {
+        const changeVal = shippingSheet.getRange(3 + row, 31 + col).getValue();
+        if (col === 3) {
+          const newVal = (changeVal + parseInt(trackingSheet.getRange(3 + count, 3*row + col + 2, 10).getValue())) || 0;
+          trackingSheet.getRange(3 + count, 3*row + col + 2).setValue(newVal);
+          continue;
+        }
         if (row < 14) {
           trackingSheet.getRange(3 + count, 3*row + col + 3).setValue(changeVal);
-          trackingSheet.getRange(count + 4, 3*row + col + 3).setValue(totalVal);
           //Adding to tracking spreadsheet
         } else if (row > 14) {
           trackingSheet.getRange(3 + count, 3*row + col).setValue(changeVal); 
+        }
+      }
+      for (var col = 0; col < 3; col++) {
+        //Getting the values from the shipping spreadsheet for the changes
+        const totalVal = shippingSheet.getRange(3 + row, 36 + col).getValues()[0];
+        if (row < 14) {
+          trackingSheet.getRange(count + 4, 3*row + col + 3).setValue(totalVal);
+          //Adding to tracking spreadsheet
+        } else if (row > 14) {
           trackingSheet.getRange(count + 4, 3*row + col).setValue(totalVal);
         }
       }

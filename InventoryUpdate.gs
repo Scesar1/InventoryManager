@@ -15,13 +15,22 @@ var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 
-function onEdit(e) {
-  var col = e.range.columnStart;
+function createOnEditTrigger() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var shouldCreateTrigger = true;
+  triggers.forEach(function (trigger) {
+    if(trigger.getEventType() === ScriptApp.EventType.ON_EDIT && trigger.getHandlerFunction() === "inventoryUpdate") {
+      shouldCreateTrigger = false; 
+    }
+  });
   
-  if (col >= 4 && col <= 8) {
-    inventoryUpdate();
-    Logger.log("Values updated");
+  if(shouldCreateTrigger) {
+    ScriptApp.newTrigger("inventoryUpdate")
+      .forSpreadsheet(SpreadsheetApp.openById(spreadsheetId))
+      .onEdit()
+      .create()
   }
+
 }
 
 function inventoryUpdate() {
@@ -30,6 +39,7 @@ function inventoryUpdate() {
     Logger.log("FORM sheet");
     return;
   }
+
   const rangeData = 'E2:H';
   const productDate = sheet.getRange('Q2:Q').getValues();
   Logger.log("Updating inventory...")
@@ -51,27 +61,17 @@ function inventoryUpdate() {
         inventoryLogic(values[row][0], values[row][1], values[row][2], values[row][3], productDate[row]);
       }
     }
-    //While loop to determine the the position of the inventory chart, in most cases it will not execute
-    var i = 1;
-    while (sheet.getRange("AG" + i).getValues()[0] != 'OFFICE') {
-      i++
-    }
-    i += 2;
+      var i = 0;
     //Inputs the data from the noriMap into the 'changes' column
     for (const [key, value] of noriMap.entries()) {
-      sheet.getRange("AG" + i).setValue(value);
+      sheet.getRange(4 + i, 33).setValue(value);
       i++;
     }
-    //While loop to determine the the position of the soy paper inventory chart, in most cases it will not execute
-    var j = 19;
-    while (sheet.getRange("AB" + j).getValues()[0] != 'Changes') {
-      j++;
-    }
-    j++;
+    i = 0;
     //Inputs the data from the soyMap into the 'changes' column
     for (const [key, value] of soyMap.entries()) {
-      sheet.getRange("AB" + j).setValue(value);
-      j++
+      sheet.getRange(21 + i, 28).setValue(value);
+      i++;
     }
     sheet.getRange("AG19").setValue(snackMap.get('SN15OR'));
     sheet.getRange("AG18").setValue(sheetMap.get('307'));
@@ -95,14 +95,7 @@ function inventoryUpdate() {
  * @param quantity  the amount of product, found in column H
  */
 function inventoryLogic(designator, size, quality, quantity, date) {
-  /*
-  const sheetDate = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange("A1").getValues()[0];
-  var str = sheetDate.toString();
-  var format_str = str.replace(/[^\d.]/g, "");
-  var format_date = date.toString().replace(/[^\d.]/g, "");
-  if (format_str != format_date) {
-    return;
-  } */
+  
   switch (size){
     case 'H':
       if (designator === '700') {
@@ -195,6 +188,5 @@ function inventoryLogic(designator, size, quality, quantity, date) {
     sheetMap.set('307', sheetMap.get('307') - quantity || 0);
     return;
   }
-
   
 }

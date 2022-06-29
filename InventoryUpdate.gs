@@ -5,15 +5,37 @@
  * Ship&Inventory Spreadsheet: https://docs.google.com/spreadsheets/d/1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8/edit?usp=sharing
  */
 
-
+const productRowNumber = 23;
 //Global Variables, maps for each category of product
-var noriMap = new Map([["700H", 0], ["700F", 0], ["601H", 0], ["601F", 0], ["602F", 0], ["603H", 0], ["RW", 0], ["301F", 0], ["302H", 0],
+var noriMap = new Map([["700H", 0], ["700F", 0], ["701H", 0], ["701F", 0], ["703H", 0], ["703F", 0], ["704H", 0], ["704F", 0], ["601H", 0], ["601F", 0], ["602F", 0], ["603H", 0], ["RW", 0], ["301F", 0], ["302H", 0],
   ["302F", 0], ["201F", 0], ["201H", 0], ["300U", 0]]);
 var soyMap = new Map([["PK", 0], ["GN", 0], ["YW", 0], ["SM", 0]]);
 var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
 var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
+
+function createEmptyMenu() {
+   var menu = SpreadsheetApp.getUi().createMenu("⚙️ Admin Settings");
+   menu.addItem("Add new product", "displayPrompt");
+   menu.addToUi();
+}
+
+function displayPrompt() {
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt("Please enter your name");
+  
+  //Get the button that the user pressed.
+  var button = result.getSelectedButton();
+  
+  if (button === ui.Button.OK) {
+    Logger.log("The user clicked the [OK] button.");
+    Logger.log(result.getResponseText());
+  } else if (button === ui.Button.CLOSE) {
+    Logger.log("The user clicked the [X] button and closed the prompt dialog."); 
+  }
+    
+}
 
 function createOnEditTrigger() {
   var triggers = ScriptApp.getProjectTriggers();
@@ -61,7 +83,7 @@ function inventoryUpdate() {
         inventoryLogic(values[row][0], values[row][1], values[row][2], values[row][3], productDate[row]);
       }
     }
-      var i = 0;
+    var i = 0;
     //Inputs the data from the noriMap into the 'changes' column
     for (const [key, value] of noriMap.entries()) {
       sheet.getRange(4 + i, 33).setValue(value);
@@ -70,11 +92,11 @@ function inventoryUpdate() {
     i = 0;
     //Inputs the data from the soyMap into the 'changes' column
     for (const [key, value] of soyMap.entries()) {
-      sheet.getRange(21 + i, 28).setValue(value);
+      sheet.getRange(27 + i, 28).setValue(value);
       i++;
     }
-    sheet.getRange("AG19").setValue(snackMap.get('SN15OR'));
-    sheet.getRange("AG18").setValue(sheetMap.get('307'));
+    sheet.getRange("AG24").setValue(sheetMap.get('307'));
+    sheet.getRange("AG25").setValue(snackMap.get('SN15OR'));
 
     Logger.log("Inventory updated successfully.")
     trackingSheet();
@@ -95,11 +117,23 @@ function inventoryUpdate() {
  * @param quantity  the amount of product, found in column H
  */
 function inventoryLogic(designator, size, quality, quantity, date) {
-  
+  designator = designator.toString().trim();
   switch (size){
     case 'H':
       if (designator === '700') {
         noriMap.set('700H', noriMap.get('700H') - quantity || 0);
+        return;
+      }
+      if (designator === '701') {
+        noriMap.set('701H', noriMap.get('701H') - quantity || 0);
+        return;
+      }
+      if (designator === '703') {
+        noriMap.set('703H', noriMap.get('703H') - quantity || 0);
+        return;
+      }
+      if (designator === '704') {
+        noriMap.set('704H', noriMap.get('704H') - quantity || 0);
         return;
       }
       if (designator === '601') {
@@ -132,8 +166,20 @@ function inventoryLogic(designator, size, quality, quantity, date) {
         noriMap.set('201F', noriMap.get('201F') - quantity || 0);
         return;    
       }
+      if (designator === '701') {
+        noriMap.set('701F', noriMap.get('701F') - quantity || 0);
+        return;
+      }
       if (designator === '700') {
         noriMap.set('700F', noriMap.get('700F') - quantity || 0); 
+        return;
+      }
+      if (designator === '703') {
+        noriMap.set('703F', noriMap.get('703F') - quantity || 0);
+        return;
+      }
+      if (designator === '704') {
+        noriMap.set('704F', noriMap.get('704F') - quantity || 0);
         return;
       }
       if (designator === '601') {

@@ -20,6 +20,8 @@ function trackingSheet() {
   }
   const shippingSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
+  const productRow = 23;
+
   try {
     Logger.log("Recording current inventory state...");
     //Obtaining the value for the date from Ship&Inventory Spreadsheet
@@ -48,17 +50,17 @@ function trackingSheet() {
       trackingSheet.getRange(5, 2).setValue("Daily Total")
       
       //Change row color
-      trackingSheet.getRange(4, 3, 1, 60).setBackground("#b6d7a8");
-      trackingSheet.getRange(4, 3, 1, 60).setFontSize(12);
-      trackingSheet.getRange(4, 3, 1, 60).setFontColor("#e06666");
+      trackingSheet.getRange(4, 3, 1, 78).setBackground("#b6d7a8");
+      trackingSheet.getRange(4, 3, 1, 78).setFontSize(12);
+      trackingSheet.getRange(4, 3, 1, 78).setFontColor("#e06666");
       //Date Cell Color
       trackingSheet.getRange(4, 1).setBackground("white");
       //Change and Daily Total Cell Color
       trackingSheet.getRange(4, 2, 2, 1).setBackground("white");
       //Daily Total row color
-      trackingSheet.getRange(5, 3, 1,60).setBackground("#ffe599");
-      trackingSheet.getRange(5, 3, 1,60).setFontSize(12);
-      trackingSheet.getRange(5, 3, 1,60).setFontColor("black");
+      trackingSheet.getRange(5, 3, 1,78).setBackground("#ffe599");
+      trackingSheet.getRange(5, 3, 1,78).setFontSize(12);
+      trackingSheet.getRange(5, 3, 1,78).setFontColor("black");
 
       trackingSheet.getRange(4, 1).setValue(date);
       trackingSheet.getRange(4, 1, 2, 1).mergeVertically();
@@ -69,31 +71,33 @@ function trackingSheet() {
     
    
     //Data transfer between the spreadsheets for Dried Seaweed, Nori, 7Sheet, and Snack
-    for (var row = 0; row < 17; row++) {
-      if (row == 14) { //Skipping row 14 because in the shipping spreadsheet it is just the totals
+    for (var row = 0; row < productRow; row++) {
+      
+      if (row == 20) { //Skipping row 14 because in the shipping spreadsheet it is just the totals
         continue;
       }
       for (var col = 0; col < 4; col++) {
+        
         const changeVal = shippingSheet.getRange(3 + row, 31 + col).getValue();
+        const totalVal = shippingSheet.getRange(3 + row, 36 + col).getValue();
         if (col === 3) {
-          const newVal = (changeVal + parseInt(trackingSheet.getRange(3 + count, 3*row + col + 2, 10).getValue())) || 0;
-          trackingSheet.getRange(3 + count, 3*row + col + 2).setValue(newVal);
-          continue;
+          if (row < 20) {
+            var parseVal = parseFloat(shippingSheet.getRange(3 + row, 31 + col - 1).getValue(), 10) || 0;
+            var newVal = changeVal + parseVal;
+            trackingSheet.getRange(3 + count, 3*row + col + 2).setValue(newVal);
+            continue;
+          } else if (row > 20) {
+            var newVal = changeVal + (parseFloat(shippingSheet.getRange(3 + row, 31 + col - 1).getValue(), 10) || 0);
+            trackingSheet.getRange(3 + count, 3*row + col - 1).setValue(newVal);
+            continue;
+          }
         }
-        if (row < 14) {
+        if (row < 20) {
           trackingSheet.getRange(3 + count, 3*row + col + 3).setValue(changeVal);
-          //Adding to tracking spreadsheet
-        } else if (row > 14) {
-          trackingSheet.getRange(3 + count, 3*row + col).setValue(changeVal); 
-        }
-      }
-      for (var col = 0; col < 3; col++) {
-        //Getting the values from the shipping spreadsheet for the changes
-        const totalVal = shippingSheet.getRange(3 + row, 36 + col).getValues()[0];
-        if (row < 14) {
           trackingSheet.getRange(count + 4, 3*row + col + 3).setValue(totalVal);
           //Adding to tracking spreadsheet
-        } else if (row > 14) {
+        } else if (row > 20) {
+          trackingSheet.getRange(3 + count, 3*row + col).setValue(changeVal); 
           trackingSheet.getRange(count + 4, 3*row + col).setValue(totalVal);
         }
       }
@@ -101,10 +105,10 @@ function trackingSheet() {
 
     //Adding in data for the soy sheet
     for (var row = 0; row < 4; row++) {
-      const changeVal = shippingSheet.getRange(row + 21, 28).getValues()[0];
-      const totalVal = shippingSheet.getRange(row + 21, 29).getValues()[0];
-      trackingSheet.getRange(count + 3, 53 + row*3).setValue(changeVal);
-      trackingSheet.getRange(count + 4, 53 + row*3).setValue(totalVal);
+      const changeVal = shippingSheet.getRange(row + 27, 28).getValue();
+      const totalVal = shippingSheet.getRange(row + 27, 29).getValue();
+      trackingSheet.getRange(count + 3, 71 + row*3).setValue(changeVal);
+      trackingSheet.getRange(count + 4, 71 + row*3).setValue(totalVal);
     }
 
     Logger.log("Current inventory state successfully recorded")

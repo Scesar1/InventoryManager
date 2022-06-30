@@ -25,25 +25,30 @@ function trackingSheet() {
   try {
     Logger.log("Recording current inventory state...");
     //Obtaining the value for the date from Ship&Inventory Spreadsheet
-    const date = shippingSheet.getRange("A1").getValues()[0];
+    const date = new Date(shippingSheet.getRange("A1").getValues()[0]);
+    const dateTime = date.getTime();
     Logger.log(shippingSheet.getName());
     //Calculating the first open row in the date column
     var count = 1
+    var dateRow = 1;
     var dateExists = false;
     const dateVals = trackingSheet.getRange("A4:A").getValues();
+    
     for (row in dateVals) {
-      var str = dateVals[row][0].toString();
-      var format_str = str.replace(/[^\d.]/g, "");
-      var format_date = date.toString().replace(/[^\d.]/g, "");
-      if (format_str === format_date) {
+      var currTime = new Date(dateVals[row][0]).getTime();
+      if (currTime === dateTime) {
         count = parseInt(row) + 1;
         dateExists = true;
+        break;
+      } else if (currTime < dateTime) {
+        rowDate = parseInt(row) - 1;
         break;
       }
     }
 
+    var currTime = new Date(dateVals[0][0])
     //Setting the date and formatting the cell
-    if (!dateExists) {
+    if (!dateExists && currTime < dateTime) {
       trackingSheet.insertRowAfter(3);
       trackingSheet.getRange(4, 2).setValue("Change")
       trackingSheet.insertRowAfter(4);
@@ -66,6 +71,25 @@ function trackingSheet() {
       trackingSheet.getRange(4, 1, 2, 1).mergeVertically();
       trackingSheet.getRange(4, 1).setBorder(true, null, null, null, null, null);
       trackingSheet.getRange(4, 1).setVerticalAlignment("middle");
+
+    } else if (!dateExists && currTime > dateTime) {
+
+      trackingSheet.insertRowAfter(rowDate);
+      trackingSheet.getRange(rowDate + 1, 2).setValue("Change");
+      trackingSheet.insertRowAfter(rowDate + 1);
+      trackingSheet.getRange(rowDate + 2, 2).setValue("Daily Total")
+
+      trackingSheet.getRange(rowDate + 1, 3, 1, 78).setBackground("#b6d7a8");
+      trackingSheet.getRange(rowDate + 1, 3, 1, 78).setFontSize(12);
+      trackingSheet.getRange(rowDate + 1, 3, 1, 78).setFontColor("#e06666");
+
+      trackingSheet.getRange(rowDate + 2, 3, 1, 78).setBackground("#ffe599");
+      trackingSheet.getRange(rowDate + 2, 3, 1, 78).setFontSize(12);
+      trackingSheet.getRange(rowDate + 2, 3, 1, 78).setFontColor("black");
+
+      trackingSheet.getRange(rowDate + 1, 1).setValue(date);
+      trackingSheet.getRange(rowDate + 1, 1, 2, 1).mergeVertically();
+      trackingSheet.getRange(rowDate + 1, 1).setVerticalAlignment("middle");
     }
 
 

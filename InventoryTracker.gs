@@ -10,7 +10,6 @@ const ssId_tracking = '1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4';
  * Inventory Tracking Spreadsheet: https://docs.google.com/spreadsheets/d/1niYGbwTw64C6j8jTASQpHuWSp5VmtxA_X4RDjfhsZX4/edit?usp=sharing
  */
 
-
 function trackingSheet() {
   //spreadsheet declarations
   const trackingSheet = SpreadsheetApp.openById(ssId_tracking).getSheets()[0];
@@ -20,7 +19,8 @@ function trackingSheet() {
   }
   const shippingSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
-  const productRow = 23;
+  const productRow = productRowNumber != 4 ? productRowNumber : 23;
+  const totalRow = productRow - 3;
 
   try {
     Logger.log("Recording current inventory state...");
@@ -28,9 +28,15 @@ function trackingSheet() {
     const date = new Date(shippingSheet.getRange("A1").getValues()[0]);
     const dateTime = date.getTime();
     Logger.log(shippingSheet.getName());
+
+    //Date validation
+    if (!dateTime) {
+      Logger.log("Invalid date; Not updating record.")
+      return;
+    };
     //Calculating the first open row in the date column
     var count = 1
-    var dateRow = 1;
+    var rowDate = 1;
     var dateExists = false;
     const dateVals = trackingSheet.getRange("A4:A").getValues();
     
@@ -91,36 +97,53 @@ function trackingSheet() {
       trackingSheet.getRange(rowDate + 1, 1, 2, 1).mergeVertically();
       trackingSheet.getRange(rowDate + 1, 1).setVerticalAlignment("middle");
     }
+    
+    let lastKey = [...noriMap.keys()].pop();
+    Logger.log(lastKey + " " + trackingSheet.getRange(1, 6 + (productRow - 5) * 3).getValue());
+    if (lastKey.toString().trim() != trackingSheet.getRange(1, 6 + (productRow - 5) *3).getValue().toString().trim()) {
+      trackingSheet.insertColumnsBefore(6 + (productRow - 5) *3, 3);
+      trackingSheet.getRange(1, 6 + (productRow - 5) *3, 1, 3).mergeAcross();
+      trackingSheet.getRange(1, 6 + (productRow - 5) *3).setValue(lastKey);
+      trackingSheet.getRange(2, 6 + (productRow - 5) *3, 1, 3).mergeAcross();
+      var headers = trackingSheet.getRange(3, 3, 1, 3).getValues();
+      trackingSheet.getRange(3, 6 + (productRow - 5) *3, 1, 3).setValues(headers);
+    }
+      
+
 
 
 
     //Data transfer between the spreadsheets for Dried Seaweed, Nori, 7Sheet, and Snack
     for (var row = 0; row < productRow; row++) {
 
-      if (row == 20) { //Skipping row 14 because in the shipping spreadsheet it is just the totals
+      if (row == totalRow) { //Skipping this row because in the shipping spreadsheet it is just the totals
         continue;
       }
       for (var col = 0; col < 4; col++) {
 
         const changeVal = shippingSheet.getRange(3 + row, 31 + col).getValue();
         const totalVal = shippingSheet.getRange(3 + row, 36 + col).getValue();
+        if (row === productRow - 1) {
+          Logger.log(shippingSheet.getRange(3 + row, 31 + col).getA1Notation() + ": " + changeVal + " " 
+          + shippingSheet.getRange(3 + row, 36 + col).getA1Notation() + ": " + totalVal);
+        }
         if (col === 3) {
-          if (row < 20) {
+          if (row < totalRow) {
             var parseVal = parseFloat(shippingSheet.getRange(3 + row, 31 + col - 1).getValue(), 10) || 0;
             var newVal = changeVal + parseVal;
             trackingSheet.getRange(3 + count, 3 * row + col + 2).setValue(newVal);
             continue;
-          } else if (row > 20) {
+          } else if (row > totalRow) {
             var newVal = changeVal + (parseFloat(shippingSheet.getRange(3 + row, 31 + col - 1).getValue(), 10) || 0);
             trackingSheet.getRange(3 + count, 3 * row + col - 1).setValue(newVal);
             continue;
           }
         }
-        if (row < 20) {
+        if (row < totalRow) {
           trackingSheet.getRange(3 + count, 3 * row + col + 3).setValue(changeVal);
           trackingSheet.getRange(count + 4, 3 * row + col + 3).setValue(totalVal);
           //Adding to tracking spreadsheet
-        } else if (row > 20) {
+        } else if (row > totalRow) {
           trackingSheet.getRange(3 + count, 3 * row + col).setValue(changeVal);
           trackingSheet.getRange(count + 4, 3 * row + col).setValue(totalVal);
         }

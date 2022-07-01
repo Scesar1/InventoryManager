@@ -5,8 +5,20 @@ function createMenu() {
 }
 
 function showSidebar() {
-  var html = HtmlService.createHtmlOutputFromFile('Page')
-      .setTitle('My custom sidebar');
-  SpreadsheetApp.getUi() // Or DocumentApp or SlidesApp or FormApp.
+   var html = HtmlService.createTemplateFromFile('Page')
+      .evaluate()
+      .setTitle('User Form');
+  SpreadsheetApp.getUi()
       .showSidebar(html);
+}
+
+function appendData(data){
+  var ws = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (data.productRadios.toString().trim() === "Nori") {
+    inventoryUpdate();
+    ws.insertRowAfter(productRowNumber - 1);
+    ws.getRange(productRowNumber, 25).setValue(data.code)
+    ws.getRange(productRowNumber, 26).setValue(data.type);
+    inventoryUpdate();
+  }
 }

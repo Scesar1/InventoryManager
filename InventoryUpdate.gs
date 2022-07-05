@@ -6,15 +6,13 @@
  */
 
 //--------------------------------- Global Variables ------------------------------------------------------------------------------
-var productRowNumber = 4;
-/*var noriMap = new Map([["700H", 0], ["700F", 0], ["701H", 0], ["701F", 0],
-["703H", 0], ["703F", 0], ["704H", 0], ["704F", 0], ["601H", 0], ["601F", 0],
-["602F", 0], ["603H", 0], ["RW", 0], ["301F", 0], ["302H", 0],
-["302F", 0], ["201F", 0], ["201H", 0], ["300U", 0]]);*/
+var productRowNumber = 3;
+var snackRowNumber = 24; 
 var noriMap = new Map();
-
+const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+const date = new Date(sheet.getName().toString());
 var soyMap = new Map([["PK", 0], ["GN", 0], ["YW", 0], ["SM", 0]]);
-var snackMap = new Map([["SN15OR", 0], ["SN15SW", 0]]);
+var snackMap = new Map();
 var sheetMap = new Map([["307", 0]]);
 //Ship&Inventory Spreadsheet
 const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
@@ -22,9 +20,9 @@ const spreadsheetId = '1L4qt-WmvpcLkNo6h-M30S8BjRrXndGjAxGL4rX3HAG8';
 
 //---------------------------------------Main--------------------------------------------------------------------------------------
 function inventoryUpdate() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  if (sheet.getName() === "FORM") {
-    Logger.log("FORM sheet");
+  Logger.log(sheet.getName());
+  if (!date) {
+    Logger.log("Not a date");
     return;
   }
   const rangeData = 'E2:H';
@@ -37,13 +35,15 @@ function inventoryUpdate() {
       Logger.log('No designator data found.');
       return;
     }
-    var row = 4;
-    while (sheet.getRange(row, 25).getValue().toString().trim() != "TOTAL") {
-      var keyBuilder = sheet.getRange(row, 25).getValue().toString().split(" ")[0] + sheet.getRange(row, 26).getValue().toString();
-      noriMap.set(keyBuilder, 0);
-      row++;
-    }
+    
+    //Constructs the nori and snack map based on the spreadsheet table
+    mapBuilder(3, "nori", noriMap);
+    mapBuilder(24, "snack", snackMap);
+
     productRowNumber += noriMap.size;
+    snackRowNumber = productRowNumber + 3 + (snackMap.size - 1);
+
+
     //Reads in the values from the range E2:H
     for (const row in values) {
       if (values[row][1] == "") {
@@ -55,23 +55,13 @@ function inventoryUpdate() {
       }
     }
 
-    var i = 0;
-    //Inputs the data from the noriMap into the 'changes' column
-    for (const [key, value] of noriMap.entries()) {
-      sheet.getRange(4 + i, 33).setValue(value);
-      i++;
-    }
-    i = 0;
-    //Inputs the data from the soyMap into the 'changes' column
-    for (const [key, value] of soyMap.entries()) {
-      sheet.getRange(27 + i, 28).setValue(value);
-      i++;
-    }
-    sheet.getRange(productRowNumber + 2, 33).setValue(sheetMap.get('307'));
-    sheet.getRange(productRowNumber + 2, 33).setValue(snackMap.get('SN15OR'));
+    changeUpdate(3, noriMap);
+    changeUpdate(23, sheetMap);
+    changeUpdate(24, snackMap);
+    changeUpdate(27, soyMap);
 
     Logger.log("Inventory updated successfully.")
-    trackingSheet();
+    //trackingSheet();
 
   } catch (err) {
     Logger.log("Inventory update failed!")
@@ -80,6 +70,8 @@ function inventoryUpdate() {
 
 }
 
+
+//--------------------------------------------------Helper Methods-----------------------------------------------------------------
 /**
  * This method determines which product map value gets updated depending on the four main characteristics of each product 
  * in the spreadsheet. 
@@ -144,5 +136,34 @@ function inventoryLogic(designator, size, quality, quantity) {
     sheetMap.set('307', sheetMap.get('307') - quantity || 0);
     return;
   }
-
 }
+
+function mapBuilder(row, type, productMap) {
+    rowCount = row;
+    while (sheet.getRange(rowCount, 25).getValue().toString().trim() != "TOTAL") {
+      if (type === "nori") {
+        var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0] + 
+          sheet.getRange(rowCount, 26).getValue().toString();
+      } else if (type == "snack") {
+        var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0];
+      } else {
+        return TypeError;
+      }
+      
+      productMap.set(keyBuilder, 0);
+      rowCount++;
+    }
+  }
+
+  function changeUpdate(row , productMap) {
+    try {
+      var i = 0;
+      //Inputs the data from the map into the 'changes' column
+      for (const [key, value] of productMap.entries()) {
+        sheet.getRange(row + i, 28).setValue(value);
+        i++;
+      }
+    } catch (err) {
+      Logger.log("Invalid data");
+    } 
+  }

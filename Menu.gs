@@ -41,6 +41,10 @@ function appendData(data){
       "=AA" + productRowNumber + " + AD" + productRowNumber 
     )
 
+    ws.getRange(productRowNumber + 1, 30).setFormula(
+      "=SUM(AD3:AD" + productRowNumber + ")"
+    );
+
     ws.getRange(productRowNumber + 1, 31).setFormula(
       "=SUM(AE3:AE" + productRowNumber + ")"
     );
@@ -49,8 +53,8 @@ function appendData(data){
     ws.getRange(productRowNumber, 28, 1, 3).setBorder(false, null, null, null, null, null);
     ws.getRange(productRowNumber, 27).setBorder(false, null, null, null, null, null);
     
-    inventoryUpdate();
   } else if (data.productRadios.toString().trim() === "Snack") {
+    var snackStart = otherRowNumber + 1;
 
     ws.insertRowAfter(snackRowNumber - 1);
     ws.getRange(snackRowNumber, 25).setValue(data.code);
@@ -59,14 +63,14 @@ function appendData(data){
     ws.getRange(snackRowNumber, 28, 1, 2).setValue(0);
 
     ws.getRange(snackRowNumber + 1, 27).setFormula(
-      "=SUM(AA25:AA" + snackRowNumber + ")"
+      "=SUM(AA" + snackStart + ":AA" + snackRowNumber + ")"
     );
     ws.getRange(snackRowNumber + 1, 28).setFormula(
-      "=SUM(AB25:AB" + snackRowNumber + ")"
+      "=SUM(AB" + snackStart + ":AB" + snackRowNumber + ")"
     );
 
      ws.getRange(snackRowNumber + 1, 29).setFormula(
-      "=SUM(AC25:AC" + snackRowNumber + ")"
+      "=SUM(AC" + snackStart + ":AC" + snackRowNumber + ")"
     );
 
     ws.getRange(snackRowNumber, 30).setFormula(
@@ -77,17 +81,22 @@ function appendData(data){
       "=AA" + snackRowNumber + " + AD" + snackRowNumber 
     );
 
+    ws.getRange(snackRowNumber + 1, 30).setFormula(
+      "=SUM(AD" + snackStart + ":AD" + snackRowNumber + ")"
+    );
+
     ws.getRange(snackRowNumber + 1, 31).setFormula(
-      "=SUM(AE25:AE" + snackRowNumber + ")"
+      "=SUM(AE" + snackStart + ":AE" + snackRowNumber + ")"
     );
     
     ws.getRange(snackRowNumber - 1, 25, 1, 7).setBorder(null, null, false, null, null, null);
-    ws.getRange(snackRowNumber, 25, 1, 7).setBorder(null, true, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(snackRowNumber, 25).setBorder(null, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(snackRowNumber, 27).setBorder(null, null, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(snackRowNumber, 31).setBorder(null, true, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(snackRowNumber, 25, 1, 7).setBorder(false, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(snackRowNumber, 25).setBorder(false, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(snackRowNumber, 27).setBorder(false, null, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(snackRowNumber, 31).setBorder(false, true, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
 
   } else if (data.productRadios.toString().trim() === "Other") {
+    var otherStart = productRowNumber + 1;
     ws.insertRowAfter(otherRowNumber - 1);
     ws.getRange(otherRowNumber, 25).setValue(data.code);
     ws.getRange(otherRowNumber, 25, 1, 2).mergeAcross();
@@ -95,14 +104,14 @@ function appendData(data){
     ws.getRange(otherRowNumber, 28, 1, 2).setValue(0);
 
     ws.getRange(otherRowNumber + 1, 27).setFormula(
-      "=SUM(AA23:AA" + otherRowNumber + ")"
+      "=SUM(AA" + otherStart + ":AA" + otherRowNumber + ")"
     );
     ws.getRange(otherRowNumber + 1, 28).setFormula(
-      "=SUM(AB23:AB" + otherRowNumber + ")"
+      "=SUM(AB" + otherStart + ":AB" + otherRowNumber + ")"
     );
 
      ws.getRange(otherRowNumber + 1, 29).setFormula(
-      "=SUM(AC23:AC" + otherRowNumber + ")"
+      "=SUM(AC" + otherStart + ":AC" + otherRowNumber + ")"
     );
 
     ws.getRange(otherRowNumber, 30).setFormula(
@@ -112,16 +121,20 @@ function appendData(data){
     ws.getRange(otherRowNumber, 31).setFormula(
       "=AA" + otherRowNumber + " + AD" + otherRowNumber 
     );
+    
+    ws.getRange(otherRowNumber + 1, 30).setFormula(
+      "=SUM(AD" + otherStart + ":AD" + otherRowNumber + ")"
+    );
 
     ws.getRange(otherRowNumber + 1, 31).setFormula(
-      "=SUM(AE23:AE" + otherRowNumber + ")"
+      "=SUM(AE" + otherStart + ":AE" + otherRowNumber + ")"
     );
     
     ws.getRange(otherRowNumber - 1, 25, 1, 7).setBorder(null, null, false, null, null, null);
-    ws.getRange(otherRowNumber, 25, 1, 7).setBorder(null, true, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(otherRowNumber, 25).setBorder(null, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(otherRowNumber, 27).setBorder(null, null, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-    ws.getRange(otherRowNumber, 31).setBorder(null, true, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(otherRowNumber, 25, 1, 7).setBorder(false, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(otherRowNumber, 25).setBorder(false, true, null, null, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(otherRowNumber, 27).setBorder(false, null, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+    ws.getRange(otherRowNumber, 31).setBorder(false, true, null, true, null, null, '#666666', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
     
   }
 }

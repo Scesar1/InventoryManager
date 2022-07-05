@@ -40,13 +40,20 @@ function inventoryUpdate() {
 
     //Constructs the nori and snack map based on the spreadsheet table
     mapBuilder(3, "nori", noriMap);
-    mapBuilder(23, "other", otherMap);
-    mapBuilder(25, "snack", snackMap);
-    
 
     productRowNumber += noriMap.size;
-    otherRowNumber = productRowNumber + 3 + (otherMap.size - 1);
-    snackRowNumber = productRowNumber + 3 + (snackMap.size);
+
+    mapBuilder(productRowNumber + 1 , "other", otherMap);
+    
+    otherRowNumber = productRowNumber + (otherMap.size + 1);
+
+    mapBuilder(otherRowNumber + (snackMap.size + 1), "snack", snackMap);
+    
+    snackRowNumber = otherRowNumber + 1 + (snackMap.size);
+
+    Logger.log("Product Row Number:" + productRowNumber);
+    Logger.log("Other Row Number: " + otherRowNumber);
+    Logger.log("snackRowNumber: " + snackRowNumber);
 
 
 
@@ -62,9 +69,9 @@ function inventoryUpdate() {
     }
 
     changeUpdate(3, noriMap);
-    changeUpdate(23, otherMap);
-    changeUpdate(25, snackMap);
-    changeUpdate(27, soyMap);
+    changeUpdate(productRowNumber + 1, otherMap);
+    changeUpdate(otherRowNumber + 1, snackMap);
+    changeUpdate(snackRowNumber + 2, soyMap);
 
     Logger.log("Inventory updated successfully.")
     //trackingSheet();
@@ -140,7 +147,7 @@ function inventoryLogic(designator, size, quality, quantity) {
   }
   for (const [key, value] of otherMap.entries()) {
     if (designator === key) {
-      otherMap.set(key, snackMap,get(key) - size || 0);
+      otherMap.set(key, snackMap.get(key) - size || 0);
       return;
     }
   }
@@ -152,11 +159,13 @@ function mapBuilder(row, type, productMap) {
     if (type === "nori") {
       var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0] +
         sheet.getRange(rowCount, 26).getValue().toString();
-    } else if (type == "snack") {
+    } else if (type === "snack" || type === "other") {
       var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0];
-    } else if (type === "other") {
-      var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0];
-      return TypeError;
+      if (keyBuilder === '7') {
+        keyBuilder = '307';
+      }
+    } else {
+      return TypeError
     }
 
     productMap.set(keyBuilder, 0);

@@ -74,7 +74,6 @@ function inventoryUpdate() {
     changeUpdate(snackRowNumber + 2, soyMap);
 
     Logger.log("Inventory updated successfully.")
-    //trackingSheet();
 
   } catch (err) {
     Logger.log("Inventory update failed!")

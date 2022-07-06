@@ -6,5 +6,5 @@ Changelog:
 
 
 Inventory management and record storing for Route 66 International.
-Consists of a back-end coded with JavaScript and Google Sheets API and a front-end in Google Sheets.
+Consists of a back-end coded with JavaScript and Google Sheets API and a front-end in Google Sheets and HTML web-application
 

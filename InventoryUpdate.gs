@@ -146,7 +146,7 @@ function inventoryLogic(designator, size, quality, quantity) {
   }
   for (const [key, value] of otherMap.entries()) {
     if (designator === key) {
-      otherMap.set(key, snackMap.get(key) - size || 0);
+      otherMap.set(key, otherMap.get(key) - quantity || 0);
       return;
     }
   }

@@ -74,7 +74,6 @@ function inventoryUpdate() {
     changeUpdate(snackRowNumber + 2, soyMap);
 
     Logger.log("Inventory updated successfully.")
-    //trackingSheet();
 
   } catch (err) {
     Logger.log("Inventory update failed!")
@@ -147,7 +146,7 @@ function inventoryLogic(designator, size, quality, quantity) {
   }
   for (const [key, value] of otherMap.entries()) {
     if (designator === key) {
-      otherMap.set(key, snackMap.get(key) - size || 0);
+      otherMap.set(key, otherMap.get(key) - quantity || 0);
       return;
     }
   }

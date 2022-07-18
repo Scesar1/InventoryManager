@@ -181,3 +181,44 @@ function appendData(data){
     
   }
 }
+
+
+function showFeedbackDialog() {
+  var widget = HtmlService.createHtmlOutputFromFile("Dialogue.html");
+  widget.setHeight(150);
+  widget.setWidth(200);
+  SpreadsheetApp.getUi().showModalDialog(widget, "Create Sheet");
+}
+
+function createSheet(data) {
+  var name = data.new_date;
+  var prev_date = data.past_date;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet().copyTo(ss);
+
+  sheet.setName(name);
+  ss.setActiveSheet(sheet);
+  ss.moveActiveSheet(1);
+  sheet.getRange("A1").setValue(name);
+
+  inventoryUpdate();
+
+  const prevSheet = ss.getSheetByName(prev_date);
+  const vals = prevSheet.getRange(3, 31, snackRowNumber - 3, 1).getValues();
+
+  const soyVals = prevSheet.getRange(snackRowNumber + 2, 29, 4, 1).getValues();
+
+
+  sheet.getRange(3, 28, productRowNumber - 3, 2).setValue(0);
+  sheet.getRange(productRowNumber + 1, 28, otherRowNumber - productRowNumber - 1, 2).setValue(0);
+  sheet.getRange(otherRowNumber + 1, 28, snackMap.size, 2).setValue(0);
+  sheet.getRange("A2:T47").clearContent().clearFormat();
+  sheet.getRange(3, 27, snackRowNumber - 3, 1).setValues(vals);
+  sheet.getRange(snackRowNumber + 2, 27, 4, 1).setValues(soyVals);
+  sheet.getRange("U2:X47").clearContent();
+  sheet.getRange(snackRowNumber + 2, 28, 4, 1).setValue(0);
+
+
+
+}
+

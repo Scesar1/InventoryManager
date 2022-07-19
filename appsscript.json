@@ -22,6 +22,9 @@
     "macros": [{
       "menuName": "CreateSheet",
       "functionName": "CreateSheet"
+    }, {
+      "menuName": "UpdateButtonSheet",
+      "functionName": "UpdateButtonSheet"
     }]
   }
 }

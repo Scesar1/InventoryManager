@@ -4,5 +4,9 @@ function CreateSheetButton() {
 
 
 function UpdateButtonSheet() {
-  AutoShip();
+  autoShip();
 };
+
+function ClearSheetButton() {
+  clearSheet();
+}

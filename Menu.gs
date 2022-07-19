@@ -184,7 +184,7 @@ function appendData(data){
 
 
 function showFeedbackDialog() {
-  var widget = HtmlService.createHtmlOutputFromFile("Dialogue.html");
+  var widget = HtmlService.createHtmlOutputFromFile("Dialog.html");
   widget.setHeight(150);
   widget.setWidth(200);
   SpreadsheetApp.getUi().showModalDialog(widget, "Create Sheet");
@@ -212,13 +212,67 @@ function createSheet(data) {
   sheet.getRange(3, 28, productRowNumber - 3, 2).setValue(0);
   sheet.getRange(productRowNumber + 1, 28, otherRowNumber - productRowNumber - 1, 2).setValue(0);
   sheet.getRange(otherRowNumber + 1, 28, snackMap.size, 2).setValue(0);
-  sheet.getRange("A2:T47").clearContent().clearFormat();
+  sheet.getRange("A2:T47").clearContent().clearFormat().clearDataValidations();
   sheet.getRange(3, 27, snackRowNumber - 3, 1).setValues(vals);
   sheet.getRange(snackRowNumber + 2, 27, 4, 1).setValues(soyVals);
   sheet.getRange("U2:X47").clearContent();
   sheet.getRange(snackRowNumber + 2, 28, 4, 1).setValue(0);
 
-
-
 }
+
+function clearSheet() {
+  sheet.getRange("A2:T47").clearContent().clearFormat().clearDataValidations();
+  inventoryUpdate();
+}
+
+function autoShip() {
+  const master = SpreadsheetApp.openById("1QQlUBR5_GelX0zPeUy5ywifD1xbERqSt-JFJITCpxJQ").getSheetByName("2022MASTER");
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getActiveSheet();
+  let copiedsheet = master.copyTo(ss);
+
+
+  const shipDate = new Date(sheet.getRange("A1").getValue()).getTime();
+ 
+  //Calculate the start for the current day in the mastersheet
+  let start = 0;
+  let end = 0;
+  const dateCheckVal = copiedsheet.getRange("D23:D").getValues();
+  for (let row in dateCheckVal) {
+    const cellDate = new Date(dateCheckVal[row][0]).getTime(0);
+    if (cellDate === 0 || cellDate < 0 || !cellDate) {
+      continue;
+    }
+    if (cellDate === shipDate) {
+      start = parseInt(row) + 24;
+      break;
+    } else if (cellDate < shipDate) {
+      Logger.log("This date doesn't exist in the master file.");
+      ss.toast("This date doesn't exist in the master file.");
+      return;
+    }
+  }
+  
+  //Calculating the range for the shipping entries
+  let customerEntries = copiedsheet.getRange("D"+start + ":D").getValues();
+  let backgrounds = copiedsheet.getRange("A" + start + ":A").getBackgrounds();
+  for (let row in customerEntries) {
+    let rowColor = backgrounds[row][0];
+    if (customerEntries[row][0] === "" || rowColor ==="#d9ead3") {
+      end = start + parseInt(row);
+      break;
+    }
+  }
+
+  const diffRow = end - start;
+
+  const shippingRange = sheet.getRange(2, 1, diffRow, 20);
+
+  
+  copiedsheet.getRange(start, 4, diffRow, 20).copyTo(shippingRange);
+  ss.deleteSheet(copiedsheet);
+  inventoryUpdate();
+}
+
+
 

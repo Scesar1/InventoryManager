@@ -237,14 +237,14 @@ function autoShip() {
   //Calculate the start for the current day in the mastersheet
   let start = 0;
   let end = 0;
-  const dateCheckVal = copiedsheet.getRange("D23:D").getValues();
+  const dateCheckVal = copiedsheet.getRange("D25:D").getValues();
   for (let row in dateCheckVal) {
-    const cellDate = new Date(dateCheckVal[row][0]).getTime(0);
-    if (cellDate === 0 || cellDate < 0 || !cellDate) {
+    const cellDate = new Date(dateCheckVal[row][0]).getTime();
+    if (cellDate === 0 || cellDate < 0 || isNaN(cellDate)) {
       continue;
     }
     if (cellDate === shipDate) {
-      start = parseInt(row) + 24;
+      start = parseInt(row) + 26;
       break;
     } else if (cellDate < shipDate) {
       Logger.log("This date doesn't exist in the master file.");

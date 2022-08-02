@@ -161,7 +161,7 @@ function mapBuilder(row, type, productMap) {
     } else if (type === "snack" || type === "other") {
       var keyBuilder = sheet.getRange(rowCount, 25).getValue().toString().split(" ")[0];
       if (keyBuilder === '7') {
-        keyBuilder = '307';
+        keyBuilder = '7 Sheet';
       }
     } else {
       return TypeError

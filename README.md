@@ -1,6 +1,6 @@
 # Inventory Manager
 
-Inventory management and record storing for Umma USA and Route 66 International.
+Inventory management and record storing for Umma USA.
 Consists of a back-end coded with JavaScript and Google Sheets API and a front-end in Google Sheets and HTML web-application.
 
 ---
